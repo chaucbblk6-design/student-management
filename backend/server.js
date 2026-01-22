@@ -19,32 +19,7 @@ app.use(cors({
 
 app.use(express.json());
 
-// 2. HÀM TỰ ĐỘNG TẠO TÀI KHOẢN ADMIN
-const createAdminAccount = async () => {
-  try {
-    const adminExists = await Student.findOne({ studentId: "admin" });
 
-    if (!adminExists) {
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash("123", salt);
-
-      const adminAccount = new Student({
-        studentId: "admin",
-        fullName: "Hệ Thống Admin",
-        email: "admin@educhain.vn",
-        password: hashedPassword, 
-        role: "admin"
-      });
-
-      await adminAccount.save();
-      console.log("✅ Đã tạo tài khoản Admin mặc định (admin/123)");
-    } else {
-      console.log("ℹ️ Tài khoản Admin đã tồn tại.");
-    }
-  } catch (err) {
-    console.error("❌ Lỗi tạo Admin:", err.message);
-  }
-};
 
 // 3. KẾT NỐI DATABASE
 mongoose.connect(process.env.MONGODB_URI)
