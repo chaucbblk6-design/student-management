@@ -60,6 +60,25 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+  
+  // Tìm user trong Database
+  const user = await User.findOne({ username });
+  if (!user) return res.status(400).json({ message: "Tài khoản không tồn tại" });
+
+  // Kiểm tra mật khẩu (Giả sử bạn dùng bcrypt)
+  // const isMatch = await bcrypt.compare(password, user.password);
+  const isMatch = (password === user.password); // Chỉ dùng cho test, nên dùng bcrypt sau này
+
+  if (!isMatch) return res.status(400).json({ message: "Sai mật khẩu" });
+
+  // Tạo token JWT
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+  
+  res.json({ token, user });
+});
+
 // @route   POST /api/students/login
 // @desc    Đăng nhập cho sinh viên
 router.post("/login", async (req, res) => {
