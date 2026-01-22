@@ -5,6 +5,11 @@ const connectDB = require("./config/db");
 
 const app = express();
 
+const cors = require('cors');
+
+// Cho phép tất cả các nguồn (Dùng tạm để test cho nhanh)
+app.use(cors());
+
 // 1. Kết nối cơ sở dữ liệu
 connectDB();
 

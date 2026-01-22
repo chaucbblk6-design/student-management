@@ -1,5 +1,6 @@
 
 import { UserRole, User, Course, Grade, ScheduleItem, Announcement, ExamScheduleItem } from './types';
+export const API_URL = "https://backend-student-management.onrender.com";
 
 export const FACULTIES = [
   'Công nghệ thông tin',
