@@ -22,6 +22,8 @@ import Announcements from './pages/Announcements';
 import ChangePassword from './pages/ChangePassword';
 import Settings from './pages/admin/Settings';
 
+
+
 const DashboardSwitch = () => {
   const { user } = useAuth();
   
@@ -31,6 +33,8 @@ const DashboardSwitch = () => {
   
   return <Navigate to="/login" />;
 };
+
+
 
 const App: React.FC = () => {
   return (
