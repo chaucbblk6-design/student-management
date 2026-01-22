@@ -22,6 +22,8 @@ import {
   Calendar,
   MapPin
 } from 'lucide-react';
+// Link API từ Render của bạn
+const API_URL = "https://student-management-u14d.onrender.com/api/students";
 import axios from 'axios'; // Import axios for API calls
 
 interface ExtendedUser extends User {
@@ -58,6 +60,8 @@ const UserManagement: React.FC = () => {
     const fetchStudents = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/students');
+        const API_URL = "https://backend-student-management.onrender.com/api/students"; 
+// Thay link trên bằng link Render của Châu nếu khác nhé
         const fetchedStudents = response.data.map((student: any) => ({
           id: student._id,
           username: student.studentId, // Map studentId to username for display
@@ -113,6 +117,8 @@ const UserManagement: React.FC = () => {
           faculty: formData.faculty,
         };
         const response = await axios.put(`http://localhost:5000/api/students/${editingUser.id}`, updatedUser);
+        const API_URL = "https://backend-student-management.onrender.com/api/students"; 
+// Thay link trên bằng link Render của Châu nếu khác nhé
 
         if (response.status === 200) {
           setUsers(users.map(u => (u.id === editingUser.id ? { ...u, ...updatedUser } : u)));
@@ -126,6 +132,8 @@ const UserManagement: React.FC = () => {
           email: formData.email,
         };
         const response = await axios.post('http://localhost:5000/api/students', newStudent);
+        const API_URL = "https://backend-student-management.onrender.com/api/students"; 
+// Thay link trên bằng link Render của Châu nếu khác nhé
 
         if (response.status === 201) {
           const savedStudent = response.data;
@@ -160,11 +168,16 @@ const UserManagement: React.FC = () => {
     }
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (userToDelete) {
-      setUsers(users.filter(u => u.id !== userToDelete.id));
-      setUserToDelete(null);
-      showSuccess();
+      try {
+        await axios.delete(`${API_URL}/${userToDelete.id}`); // Gọi API xóa thật
+        setUsers(users.filter(u => u.id !== userToDelete.id)); // Cập nhật giao diện
+        setUserToDelete(null);
+        showSuccess();
+      } catch (error) {
+        alert("Không thể xóa sinh viên này!");
+      }
     }
   };
 

@@ -1,13 +1,13 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs'); // Đã thêm để mã hóa mật khẩu
+const bcrypt = require('bcryptjs'); 
 require('dotenv').config();
 const Student = require("./models/Student");
 
 const app = express();
 
-// 1. CẤU HÌNH CORS
+// 1. CẤU HÌNH CORS (Để kết nối với Vercel)
 app.use(cors({
   origin: [
     "https://student-management-nine-zeta.vercel.app", 
@@ -19,14 +19,12 @@ app.use(cors({
 
 app.use(express.json());
 
-// 2. HÀM TỰ ĐỘNG TẠO TÀI KHOẢN ADMIN (ĐÃ TỐI ƯU)
+// 2. HÀM TỰ ĐỘNG TẠO TÀI KHOẢN ADMIN
 const createAdminAccount = async () => {
   try {
-    // Tìm theo studentId để tránh trùng lặp
     const adminExists = await Student.findOne({ studentId: "admin" });
 
     if (!adminExists) {
-      // Mã hóa mật khẩu "123" trước khi lưu để khớp với logic đăng nhập bcrypt
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash("123", salt);
 
@@ -41,14 +39,14 @@ const createAdminAccount = async () => {
       await adminAccount.save();
       console.log("✅ Đã tạo tài khoản Admin mặc định (admin/123)");
     } else {
-      console.log("ℹ️ Tài khoản Admin đã tồn tại trong Database.");
+      console.log("ℹ️ Tài khoản Admin đã tồn tại.");
     }
   } catch (err) {
-    console.error("❌ Lỗi khi tự động tạo Admin:", err.message);
+    console.error("❌ Lỗi tạo Admin:", err.message);
   }
 };
 
-// 3. KẾT NỐI MONGODB VÀ CHẠY HÀM TẠO ADMIN
+// 3. KẾT NỐI DATABASE
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
     console.log('✅ MongoDB connected');
@@ -56,7 +54,7 @@ mongoose.connect(process.env.MONGODB_URI)
   })
   .catch(err => console.log('❌ Lỗi kết nối MongoDB:', err));
 
-// 4. KHAI BÁO ROUTERS (Đảm bảo Châu đã có các file này)
+// 4. ROUTERS
 app.use('/api/students', require('./routes/students')); 
 
 const PORT = process.env.PORT || 10000;
