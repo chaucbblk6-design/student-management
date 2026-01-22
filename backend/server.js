@@ -1,17 +1,17 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs'); // Đã thêm để mã hóa mật khẩu
 require('dotenv').config();
-const Student = require("./models/Student"); // Đảm bảo đường dẫn tới file Student.js chính xác
+const Student = require("./models/Student");
 
 const app = express();
 
 // 1. CẤU HÌNH CORS
 app.use(cors({
-  // Châu nhớ kiểm tra link Vercel mới nhất trong Dashboard Vercel và dán vào đây nhé
   origin: [
     "https://student-management-nine-zeta.vercel.app", 
-    "https://student-management-pj8r.vercel.app", // Thêm link mới mình thấy trong ảnh trước của Châu
+    "https://student-management-pj8r.vercel.app", 
     "http://localhost:5173"
   ], 
   credentials: true
@@ -19,18 +19,22 @@ app.use(cors({
 
 app.use(express.json());
 
-// 2. HÀM TỰ ĐỘNG TẠO TÀI KHOẢN ADMIN
+// 2. HÀM TỰ ĐỘNG TẠO TÀI KHOẢN ADMIN (ĐÃ TỐI ƯU)
 const createAdminAccount = async () => {
   try {
-    // Kiểm tra xem đã có tài khoản admin chưa trong bảng Student
-    const adminExists = await Student.findOne({ role: "admin" });
+    // Tìm theo studentId để tránh trùng lặp
+    const adminExists = await Student.findOne({ studentId: "admin" });
 
     if (!adminExists) {
+      // Mã hóa mật khẩu "123" trước khi lưu để khớp với logic đăng nhập bcrypt
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash("123", salt);
+
       const adminAccount = new Student({
         studentId: "admin",
         fullName: "Hệ Thống Admin",
         email: "admin@educhain.vn",
-        password: "123", // Mật khẩu là 123
+        password: hashedPassword, 
         role: "admin"
       });
 
@@ -48,13 +52,12 @@ const createAdminAccount = async () => {
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
     console.log('✅ MongoDB connected');
-    createAdminAccount(); // Sau khi kết nối thành công thì tạo Admin ngay
+    createAdminAccount(); 
   })
   .catch(err => console.log('❌ Lỗi kết nối MongoDB:', err));
 
-// Các Router của bạn
-// app.use('/api/auth', require('./routes/auth'));
-// app.use('/api/users', require('./routes/users'));
+// 4. KHAI BÁO ROUTERS (Đảm bảo Châu đã có các file này)
+app.use('/api/students', require('./routes/students')); 
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
