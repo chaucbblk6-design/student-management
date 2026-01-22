@@ -14,24 +14,30 @@ const Login: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setIsSubmitting(true);
-    
-    try {
-      const success = await login(username, password);
-      if (success) {
-        navigate('/');
+  // Trong file Login.tsx
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError('');
+  setIsSubmitting(true);
+  
+  try {
+    const response = await login(username, password); // Nhận về thông tin user từ AuthContext
+    if (response && response.success) {
+      // KIỂM TRA QUYỀN (ROLE) ĐỂ ĐIỀU HƯỚNG
+      if (response.user.role === 'admin') {
+        navigate('/admin-dashboard'); // Trang quản lý cho Admin
       } else {
-        setError('Thông tin đăng nhập không chính xác. Vui lòng kiểm tra lại mã số và mật khẩu.');
+        navigate('/student-profile'); // Trang cá nhân cho Sinh viên
       }
-    } catch (err) {
-      setError('Đã có lỗi xảy ra. Vui lòng thử lại sau.');
-    } finally {
-      setIsSubmitting(false);
+    } else {
+      setError('Thông tin đăng nhập không chính xác.');
     }
-  };
+  } catch (err) {
+    setError('Đã có lỗi xảy ra.');
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
