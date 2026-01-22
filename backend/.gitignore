@@ -1,0 +1,13 @@
+# Tắt việc đẩy các thư viện nặng lên GitHub
+node_modules/
+
+# QUAN TRỌNG: Không bao giờ đẩy mật khẩu Database lên mạng
+.env
+
+# Các file log lỗi
+*.log
+npm-debug.log*
+
+# File cấu hình riêng của máy tính/Editor
+.vscode/
+.DS_Store
