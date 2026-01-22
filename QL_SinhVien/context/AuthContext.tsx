@@ -1,56 +1,39 @@
+import React, { createContext, useContext, useState } from 'react';
+import axios from 'axios';
+import { API_URL } from '../constants'; // Đảm bảo đã có link Render ở đây
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User, UserRole } from '../types';
-import { MOCK_USERS } from '../constants';
-
-interface AuthContextType {
-  user: User | null;
-  login: (username: string, pass: string) => Promise<boolean>;
-  logout: () => void;
-  isLoading: boolean;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<any>(null);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState(null);
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem('edu_user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+  const login = async (username: string, password: string) => {
+    try {
+      // Gọi API đến Render
+      const response = await axios.post(`${API_URL}/api/auth/login`, {
+        username,
+        password
+      });
+
+      if (response.data.token) {
+        // Lưu token vào máy để lần sau không phải đăng nhập lại
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        setUser(response.data.user);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Lỗi đăng nhập:", error);
+      return false;
     }
-    setIsLoading(false);
-  }, []);
-
-  const login = async (username: string, pass: string): Promise<boolean> => {
-    // Basic mock authentication
-    const foundUser = MOCK_USERS.find(u => u.username === username);
-    if (foundUser && pass === '123456') { // Simple global password for demo
-      setUser(foundUser);
-      localStorage.setItem('edu_user', JSON.stringify(foundUser));
-      return true;
-    }
-    return false;
-  };
-
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('edu_user');
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+export const useAuth = () => useContext(AuthContext);
